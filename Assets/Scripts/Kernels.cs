@@ -17,7 +17,7 @@ public static class Kernels
         h9 = Mathf.Pow(h, 9);
         coef_value = 315 / (64 * Mathf.PI * h9);
         coef_gradient = -945 / (32 * Mathf.PI * h9);
-        coef_laplacian = 945 / (64 * Mathf.PI * h9);
+        coef_laplacian = 945 / (32 * Mathf.PI * h9); //Comprobar lo del signo
     }
 
     static public float Standard_kernel_value(ref Vector3 vd)
