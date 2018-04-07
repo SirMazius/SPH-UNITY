@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
-public class InternalForces
+public static class InternalForces
 {
 
     public static void Compute_PressureForce(List<Vector3> l_pForce, List<float> l_density, List<float> l_mass, List<float> l_pressure, List<Vector3> l_pos)
