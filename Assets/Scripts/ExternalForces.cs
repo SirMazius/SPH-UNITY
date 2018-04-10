@@ -29,7 +29,9 @@ public static class ExternalForces
     {
         for (int i = 0; i < l_pos.Count; i++)
         {
+
             l_colorLaplacian[i] = 0f;
+
             for (int j = 0; j < l_pos.Count; j++)
             {
                 Vector3 vd = l_pos[i] - l_pos[j];
@@ -42,8 +44,11 @@ public static class ExternalForces
     {
         for (int i = 0; i < l_normal.Count; i++)
         {
+
             if (FluidProperties.surfaceTension_threshold <= l_normal[i].magnitude)
                 l_stForce[i] = -FluidProperties.surfaceTension_factor * l_color_laplacian[i] * l_normal[i] / l_normal[i].magnitude;
+            else
+                l_stForce[i].Set(0, 0, 0);
             
         }
     }

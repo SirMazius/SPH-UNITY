@@ -47,7 +47,7 @@ public static class Kernels
     {
         float d = vd.magnitude;
         if (d > h)
-            return Vector3.zero;
+            return new Vector3();
 
         return coef_normal_gradient * vd * Mathf.Pow(h2 - vd.sqrMagnitude, 2);
     }
@@ -65,7 +65,7 @@ public static class Kernels
     {
         float d = vd.magnitude;
         if (d > h)
-            return Vector3.zero;
+            return new Vector3();
 
         return coef_spiky_gradient * vd / vd.magnitude * Mathf.Pow((h - vd.magnitude), 2);
     }
