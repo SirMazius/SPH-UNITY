@@ -15,11 +15,12 @@ public static class FluidProperties {
     public static float restitution; //<
     public static float support_radius;  //<
     public static float fluid_volume; //<
+    public static float time_delta;
 
     public static int n_particles; //<
     public static int kernel_particles; //<
 
-    public static void Initialize_fluid_properties(int _n_particles, int _kernel_particles)
+    public static void Initialize_fluid_properties(int _n_particles, int _kernel_particles, float _time_delta)
     {
         Build_water();
 
@@ -29,6 +30,7 @@ public static class FluidProperties {
         kernel_particles = _kernel_particles;
         support_radius = Mathf.Pow((3 * fluid_volume * kernel_particles) / (4 * Mathf.PI * n_particles), 1 / 3);
         surfaceTension_threshold = Mathf.Sqrt(density / kernel_particles);
+        time_delta = _time_delta;
     }
 
     public static void Build_water()
