@@ -40,7 +40,7 @@ public static class HashTable
         }
     }
 
-    public static void Search_neighbors(List<Vector3> l_pos, List<int> l_neighbors, int index)
+	public static void Search_neighbors(List<Vector3> l_pos, List<List<int>> l_neighbors, int index)
     {
         r.x = l_pos[index].x / l * prime1;
         r.y = l_pos[index].y / l * prime2;
@@ -56,6 +56,8 @@ public static class HashTable
         bbMax.y = (r.y * (l_pos[index].y + v3h.y));
         bbMax.z = (r.z * (l_pos[index].z + v3h.z));
 
+		int count = 0;
+
         for (int i = (int)bbMin.x; i < (int)bbMax.x; i++)
         {
             for (int j = (int)bbMin.y; j < (int)bbMax.y; j++)
@@ -63,18 +65,20 @@ public static class HashTable
                 for (int k = (int)bbMin.z; k < (int)bbMax.z; k++)
                 {
                     int index2 = ((int)(l_pos[i].x / l * prime1) ^ (int)(l_pos[i].y / l * prime2) ^ (int)(l_pos[i].z / l * prime3)) % size;
-                    l_neighbors = base_array[index2];
-
-                    int lenght = l_neighbors.Count;
+					l_neighbors.Add(base_array[index2]);
+					/* Esto permite borrar elementos para evitar la comprobacion del radio en los kernels
+					int lenght = l_neighbors[count].Count;
                     for (int position = 0; position < lenght; position++)
                     {
-                        if (Vector3.Magnitude(l_pos[index] - l_pos[l_neighbors[position]]) > FluidProperties.support_radius)
+						if (Vector3.Magnitude(l_pos[index] - l_pos[l_neighbors[count][position]]) > FluidProperties.support_radius)
                         {
-                            l_neighbors.RemoveAt(position);
+                            l_neighbors[count].RemoveAt(position); //< RemoveAt es caro de narices una cola seria mejor probablemente
                             lenght--;
                             position--;
                         }
                     }
+					count++;
+					*/
                 }
             }
         }
