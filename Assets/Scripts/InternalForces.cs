@@ -4,21 +4,26 @@ using UnityEngine;
 public static class InternalForces
 {
 
-    public static void Compute_PressureForce(List<Vector3> l_pForce, List<float> l_density, List<float> l_mass, List<float> l_pressure, List<Vector3> l_pos)
+    public static void Compute_PressureForce(List<Vector3> l_pForce, List<float> l_density, List<float> l_mass, List<float> l_pressure, List<Vector3> l_pos, List<List<int>> l_neighbors)
     {
-        for (int i = 0; i < l_pos.Count; i++)
+        int n = FluidProperties.n_particles;
+        Vector3 pForce = new Vector3();
+        Vector3 vd = new Vector3();
+        for (int i = 0; i < n; i++)
         {
 
-            Vector3 pForce = new Vector3();
+            pForce.Set(0f, 0f, 0f);
 
-            for (int j = 0; j < l_pos.Count; j++)
-            {
-                if (i != j)
+            foreach (List<int> l in l_neighbors)
+                foreach (int j in l)
                 {
-                    Vector3 vd = l_pos[i] - l_pos[j];
-                    pForce += (l_pressure[i] + l_pressure[j]) / 2 * l_mass[j] / l_density[j] * Kernels.Spiky_kernel_gradient(ref vd);
+                    if (i != j)
+                    {
+                        vd = l_pos[i] - l_pos[j];
+                        pForce += (l_pressure[i] + l_pressure[j]) / 2 * l_mass[j] / l_density[j] * Kernels.Spiky_kernel_gradient(ref vd);
+                    }
                 }
-            }
+
 
             l_pForce[i] = -pForce;
 
@@ -26,21 +31,25 @@ public static class InternalForces
 
     }
 
-    public static void Compute_ViscosityForce(List<Vector3> l_vForce, List<Vector3> l_pos, List<Vector3> l_velocity, List<float> l_mass, List<float> l_density, float viscosity_coeficient)
+    public static void Compute_ViscosityForce(List<Vector3> l_vForce, List<Vector3> l_pos, List<Vector3> l_velocity, List<float> l_mass, List<float> l_density, float viscosity_coeficient, List<List<int>> l_neighbors)
     {
-        for (int i = 0; i < l_pos.Count; i++)
+        int n = FluidProperties.n_particles;
+        Vector3 vForce = new Vector3();
+        Vector3 vd = new Vector3();
+        for (int i = 0; i < n; i++)
         {
-            Vector3 vForce = new Vector3();
+            vForce.Set(0f, 0f, 0f);
             float densityViscosity_factor = viscosity_coeficient / l_density[i];
 
-            for (int j = 0; j < l_pos.Count; j++)
-            {
-                if (i != j)
+            foreach (List<int> l in l_neighbors)
+                foreach (int j in l)
                 {
-                    Vector3 vd = l_pos[i] - l_pos[j];
-                    vForce += (l_velocity[j] - l_velocity[i]) * l_mass[j] * Kernels.Viscosity_kernel_laplacian(ref vd);
+                    if (i != j)
+                    {
+                        vd = l_pos[i] - l_pos[j];
+                        vForce += (l_velocity[j] - l_velocity[i]) * l_mass[j] * Kernels.Viscosity_kernel_laplacian(ref vd);
+                    }
                 }
-            }
 
             l_vForce[i] = vForce * densityViscosity_factor;
         }

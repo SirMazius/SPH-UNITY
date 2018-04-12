@@ -56,7 +56,7 @@ public static class HashTable
         bbMax.y = (r.y * (l_pos[index].y + v3h.y));
         bbMax.z = (r.z * (l_pos[index].z + v3h.z));
 
-		int count = 0;
+		//int count = 0;
 
         for (int i = (int)bbMin.x; i < (int)bbMax.x; i++)
         {
