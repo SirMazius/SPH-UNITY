@@ -12,12 +12,12 @@ public static class ExternalForces
         }
     }
 
-    public static void Compute_normal(List<Vector3> l_normal, List<Vector3> l_pos, List<float> l_mass, List<float> l_density)
+    public static void Compute_normal(List<Vector3> l_normal, List<List<int>> l_neighbors, List<Vector3> l_pos, List<float> l_mass, List<float> l_density)
     {
         for (int i = 0; i < l_pos.Count; i++)
         {
             l_normal[i].Set(0f, 0f, 0f);
-            for (int j = 0; j < l_pos.Count; j++)
+            foreach (int j in l_neighbors[i])
             {
                 Vector3 vd = l_pos[i] - l_pos[j];
                 l_normal[i] += l_mass[j] / l_density[j] * Kernels.Standard_kernel_gradient(ref vd);
@@ -25,14 +25,14 @@ public static class ExternalForces
         }
     }
 
-    public static void Compute_color_laplacian(List<Vector3> l_pos, List<float> l_mass, List<float> l_density, List<float> l_colorLaplacian)
+    public static void Compute_color_laplacian(List<Vector3> l_pos, List<float> l_mass, List<List<int>> l_neighbors, List<float> l_density, List<float> l_colorLaplacian)
     {
         for (int i = 0; i < l_pos.Count; i++)
         {
 
             l_colorLaplacian[i] = 0f;
 
-            for (int j = 0; j < l_pos.Count; j++)
+            foreach (int j in l_neighbors[i])
             {
                 Vector3 vd = l_pos[i] - l_pos[j];
                 l_colorLaplacian[i] += l_mass[j] / l_density[j] * Kernels.Standard_kernel_laplacian(ref vd);
@@ -49,7 +49,7 @@ public static class ExternalForces
                 l_stForce[i] = -FluidProperties.surfaceTension_factor * l_color_laplacian[i] * l_normal[i] / l_normal[i].magnitude;
             else
                 l_stForce[i].Set(0, 0, 0);
-            
+
         }
     }
 }

@@ -27,7 +27,6 @@ public static class Integrator
             l_finalForce[i] = new Vector3(); //TODO: esto es 100% necesario? se inicializa abajo
             l_initialV[i] = new Vector3();
             l_initialA[i] = new Vector3();
-
         }
     }
 
