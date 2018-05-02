@@ -51,51 +51,56 @@ public static class HashTable
         return (int)(r.x * prime1) ^ (int)(r.y * prime2) ^ (int)(r.z * prime3) % size;
     }
 
-    public static void Search_neighbors(List<Vector3> l_pos, List<List<int>> l_neighbors, int index)
+    public static void Search_neighbors(List<Vector3> l_pos, List<List<int>> l_neighbors)
     {
-        r.x = l_pos[index].x / l * prime1;
-        r.y = l_pos[index].y / l * prime2;
-        r.z = l_pos[index].z / l * prime3;
-
-        v3h.Set(FluidProperties.support_radius, FluidProperties.support_radius, FluidProperties.support_radius);
-
-        bbMin.x = (r.x * (l_pos[index].x - v3h.x));
-        bbMin.y = (r.y * (l_pos[index].y - v3h.y));
-        bbMin.z = (r.z * (l_pos[index].z - v3h.z));
-
-        bbMax.x = (r.x * (l_pos[index].x + v3h.x));
-        bbMax.y = (r.y * (l_pos[index].y + v3h.y));
-        bbMax.z = (r.z * (l_pos[index].z + v3h.z));
-
-        //int count = 0;
-        Clean_neighbors(l_neighbors);
-
-
-        for (int i = (int)bbMin.x; i < (int)bbMax.x; i++)
+        for (int i = 0; i < FluidProperties.n_particles; i++)
         {
-            for (int j = (int)bbMin.y; j < (int)bbMax.y; j++)
+            r.x = l_pos[i].x / l * prime1;
+            r.y = l_pos[i].y / l * prime2;
+            r.z = l_pos[i].z / l * prime3;
+
+            bbMin.x = (r.x * (l_pos[i].x - l));
+            bbMin.y = (r.y * (l_pos[i].y - l));
+            bbMin.z = (r.z * (l_pos[i].z - l));
+
+            bbMax.x = (r.x * (l_pos[i].x + l));
+            bbMax.y = (r.y * (l_pos[i].y + l));
+            bbMax.z = (r.z * (l_pos[i].z + l));
+
+            //int count = 0;
+            Clean_neighbors(l_neighbors);
+
+            /*
+                TODO: COMPROBAR EL FLOOR DEL BBMIN 
+                Las R se podrian precalcular?
+            */
+            for (v3h.x = (int)bbMin.x; v3h.x < (int)bbMax.x; v3h.x++)
             {
-                for (int k = (int)bbMin.z; k < (int)bbMax.z; k++)
+                for (v3h.y = (int)bbMin.y; v3h.y < (int)bbMax.y; v3h.y++)
                 {
-                    v3h.Set(i, j, k);
-                    int index2 = Hash(v3h);
-                    l_neighbors.Add(base_array[index2]);
-                    /* Esto permite borrar elementos para evitar la comprobacion del radio en los kernels
-					int lenght = l_neighbors[count].Count;
-                    for (int position = 0; position < lenght; position++)
+                    for (v3h.z = (int)bbMin.z; v3h.z < (int)bbMax.z; v3h.z++)
                     {
-						if (Vector3.Magnitude(l_pos[index] - l_pos[l_neighbors[count][position]]) > FluidProperties.support_radius)
+                        int index = Hash(v3h);
+                        foreach (int index2 in base_array[index])
+                            l_neighbors[i].Add(index2);
+                        /* Esto permite borrar elementos para evitar la comprobacion del radio en los kernels
+                        int lenght = l_neighbors[count].Count;
+                        for (int position = 0; position < lenght; position++)
                         {
-                            l_neighbors[count].RemoveAt(position); //< RemoveAt es caro de narices una cola seria mejor probablemente
-                            lenght--;
-                            position--;
+                            if (Vector3.Magnitude(l_pos[index] - l_pos[l_neighbors[count][position]]) > FluidProperties.support_radius)
+                            {
+                                l_neighbors[count].RemoveAt(position); //< RemoveAt es caro de narices una cola seria mejor probablemente
+                                lenght--;
+                                position--;
+                            }
                         }
+                        count++;
+                        */
                     }
-					count++;
-					*/
                 }
             }
         }
+        
 
     }
 
