@@ -8,10 +8,10 @@ public static class DensityNpressure {
 
         for (int i = 0; i < l_pos.Count; i++)
 
-            for (int j = 0; j < l_pos.Count; j++)
+            foreach (int index in l_neighbors[i])
             {
-                Vector3 vd = l_pos[i] - l_pos[j];
-                l_density[i] = l_mass[j] * Kernels.Standard_kernel_value(ref vd);
+                Vector3 vd = l_pos[i] - l_pos[index];
+                l_density[i] = l_mass[index] * Kernels.Standard_kernel_value(ref vd);
             }
 
     }
