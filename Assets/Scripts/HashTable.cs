@@ -10,13 +10,16 @@ public static class HashTable
     const int prime3 = 83492791;
 
     static Vector3 bbMin, bbMax;
-    static Vector3 r = new Vector3();
-    static Vector3 v3h = new Vector3();
+    static Vector3 r;
+    static Vector3 v3h;
     static int size;
+    static float l;
 
-    static float l = FluidProperties.support_radius;
     public static void Initialize()
     {
+        v3h = new Vector3();
+        r = new Vector3();
+        l = FluidProperties.support_radius;
         size = Next_prime(FluidProperties.n_particles * 2);
 
         base_array = new List<int>[size];
@@ -35,12 +38,20 @@ public static class HashTable
     {
         for (int i = 0; i < l_pos.Count; i++)
         {
-            int index = ((int)(l_pos[i].x / l * prime1) ^ (int)(l_pos[i].y / l * prime2) ^ (int)(l_pos[i].z / l * prime3)) % size;
+            int index = Hash(l_pos[i]);
             base_array[index].Add(i);
         }
     }
 
-	public static void Search_neighbors(List<Vector3> l_pos, List<List<int>> l_neighbors, int index)
+    
+
+    public static int Hash(Vector3 pos)
+    {
+        r.Set(Mathf.Floor(pos.x / l), Mathf.Floor(pos.y / l), Mathf.Floor(pos.z / l));
+        return (int)(r.x * prime1) ^ (int)(r.y * prime2) ^ (int)(r.z * prime3) % size;
+    }
+
+    public static void Search_neighbors(List<Vector3> l_pos, List<List<int>> l_neighbors, int index)
     {
         r.x = l_pos[index].x / l * prime1;
         r.y = l_pos[index].y / l * prime2;
@@ -56,7 +67,9 @@ public static class HashTable
         bbMax.y = (r.y * (l_pos[index].y + v3h.y));
         bbMax.z = (r.z * (l_pos[index].z + v3h.z));
 
-		//int count = 0;
+        //int count = 0;
+        Clean_neighbors(l_neighbors);
+
 
         for (int i = (int)bbMin.x; i < (int)bbMax.x; i++)
         {
@@ -64,9 +77,10 @@ public static class HashTable
             {
                 for (int k = (int)bbMin.z; k < (int)bbMax.z; k++)
                 {
-                    int index2 = ((int)(l_pos[i].x / l * prime1) ^ (int)(l_pos[i].y / l * prime2) ^ (int)(l_pos[i].z / l * prime3)) % size;
-					l_neighbors.Add(base_array[index2]);
-					/* Esto permite borrar elementos para evitar la comprobacion del radio en los kernels
+                    v3h.Set(i, j, k);
+                    int index2 = Hash(v3h);
+                    l_neighbors.Add(base_array[index2]);
+                    /* Esto permite borrar elementos para evitar la comprobacion del radio en los kernels
 					int lenght = l_neighbors[count].Count;
                     for (int position = 0; position < lenght; position++)
                     {
@@ -85,7 +99,12 @@ public static class HashTable
 
     }
 
+    private static void Clean_neighbors(List<List<int>> l_neighbors)
+    {
 
+        l_neighbors.Clear();
+
+    }
 
     private static int Next_prime(int number)
     {

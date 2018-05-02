@@ -14,6 +14,8 @@ public static class InternalForces
 
             pForce.Set(0f, 0f, 0f);
 
+            HashTable.Search_neighbors(l_pos, l_neighbors, i);
+
             foreach (List<int> l in l_neighbors)
                 foreach (int j in l)
                 {
@@ -41,17 +43,18 @@ public static class InternalForces
             vForce.Set(0f, 0f, 0f);
             float densityViscosity_factor = viscosity_coeficient / l_density[i];
 
+            HashTable.Search_neighbors(l_pos, l_neighbors, i);
+
             foreach (List<int> l in l_neighbors)
                 foreach (int j in l)
                 {
-                    if (i != j)
-                    {
-                        vd = l_pos[i] - l_pos[j];
-                        vForce += (l_velocity[j] - l_velocity[i]) * l_mass[j] * Kernels.Viscosity_kernel_laplacian(ref vd);
-                    }
+
+                    vd = l_pos[i] - l_pos[j];
+                    vForce += (l_velocity[j] - l_velocity[i]) * l_mass[j] * Kernels.Viscosity_kernel_laplacian(ref vd);
+
                 }
 
-            l_vForce[i] = vForce * densityViscosity_factor;
+            l_vForce[i] = vForce * densityViscosity_factor / l_density[i];
         }
     }
 
