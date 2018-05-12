@@ -1,6 +1,8 @@
 ﻿using UnityEngine;
 
-
+/*
+    TODO: Comprobar los casos en los que se puedan dar divisiones por cero
+*/
 public static class Kernels
 {
 
@@ -25,13 +27,13 @@ public static class Kernels
         h6 = Mathf.Pow(h, 6);
         _3h2 = 3 * h2;
 
-        coef_normal_value = 315 / (64 * Mathf.PI * h9);
-        coef_normal_gradient = -945 / (32 * Mathf.PI * h9);
-        coef_normal_laplacian = -945 / (32 * Mathf.PI * h9);
+        coef_normal_value = 315f / (64f * Mathf.PI * h9);
+        coef_normal_gradient = -945f / (32f * Mathf.PI * h9);
+        coef_normal_laplacian = -945f / (32f * Mathf.PI * h9);
 
-        coef_spiky_gradient = -45 / (Mathf.PI * h6);
+        coef_spiky_gradient = -45f / (Mathf.PI * h6);
 
-        coef_viscosity_laplacian = 45 / (Mathf.PI * h6);
+        coef_viscosity_laplacian = 45f / (Mathf.PI * h6);
     }
 
     static public float Standard_kernel_value(ref Vector3 vd)

@@ -21,6 +21,7 @@ public static class Integrator
     {
         l_finalForce = new Vector3[FluidProperties.n_particles];
         l_initialV = new Vector3[FluidProperties.n_particles];
+        l_initialA = new Vector3[FluidProperties.n_particles];
 
         for (int i = 0; i < FluidProperties.n_particles; i++)
         {
@@ -56,7 +57,7 @@ public static class Integrator
     {
         for (int i = 0; i < l_pForce.Count; i++)
         {
-            l_finalForce[i] = new Vector3();
+            //l_finalForce[i] = new Vector3(); //Esto no es necesario
             l_finalForce[i] = (l_pForce[i] + l_vForce[i]) + (l_gForce[i] + l_stForce[i]);
         }
     }

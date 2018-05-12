@@ -4,7 +4,7 @@ using UnityEngine;
 public static class InternalForces
 {
 
-    public static void Compute_PressureForce(List<Vector3> l_pForce, List<float> l_density, List<float> l_mass, List<float> l_pressure, List<Vector3> l_pos, List<List<int>> l_neighbors)
+    public static void Compute_PressureForce(List<Vector3> l_pForce, List<float> l_density, List<float> l_pressure, List<Vector3> l_pos, List<List<int>> l_neighbors)
     {
         int n = FluidProperties.n_particles;
         Vector3 pForce = new Vector3();
@@ -19,7 +19,7 @@ public static class InternalForces
                 if (i != j)
                 {
                     vd = l_pos[i] - l_pos[j];
-                    pForce += (l_pressure[i] + l_pressure[j]) / 2 * l_mass[j] / l_density[j] * Kernels.Spiky_kernel_gradient(ref vd);
+                    pForce += (l_pressure[i] + l_pressure[j]) / 2f * FluidProperties.mass / l_density[j] * Kernels.Spiky_kernel_gradient(ref vd);
                 }
             }
 
@@ -30,7 +30,7 @@ public static class InternalForces
 
     }
 
-    public static void Compute_ViscosityForce(List<Vector3> l_vForce, List<Vector3> l_pos, List<Vector3> l_velocity, List<float> l_mass, List<float> l_density, float viscosity_coeficient, List<List<int>> l_neighbors)
+    public static void Compute_ViscosityForce(List<Vector3> l_vForce, List<Vector3> l_pos, List<Vector3> l_velocity, List<float> l_density, float viscosity_coeficient, List<List<int>> l_neighbors)
     {
         int n = FluidProperties.n_particles;
         Vector3 vForce = new Vector3();
@@ -43,7 +43,7 @@ public static class InternalForces
             foreach (int j in l_neighbors[i])
             {
                 vd = l_pos[i] - l_pos[j];
-                vForce += (l_velocity[j] - l_velocity[i]) * l_mass[j] * Kernels.Viscosity_kernel_laplacian(ref vd);
+                vForce += (l_velocity[j] - l_velocity[i]) * FluidProperties.mass * Kernels.Viscosity_kernel_laplacian(ref vd);
             }
 
             l_vForce[i] = vForce * densityViscosity_factor / l_density[i];

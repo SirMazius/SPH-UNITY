@@ -26,9 +26,8 @@ public static class FluidProperties {
 
         n_particles = _n_particles;
         fluid_volume = n_particles * mass / density;
-
         kernel_particles = _kernel_particles;
-        support_radius = Mathf.Pow((3 * fluid_volume * kernel_particles) / (4 * Mathf.PI * n_particles), 1 / 3);
+        support_radius = Mathf.Pow((3 * fluid_volume * kernel_particles) / (4 * Mathf.PI * n_particles), 1f / 3f);
         surfaceTension_threshold = Mathf.Sqrt(density / kernel_particles);
         time_delta = _time_delta;
     }

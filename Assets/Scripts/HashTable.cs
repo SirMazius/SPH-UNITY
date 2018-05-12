@@ -36,6 +36,9 @@ public static class HashTable
 
     public static void Insert(List<Vector3> l_pos)
     {
+
+        Clean_table();
+
         for (int i = 0; i < l_pos.Count; i++)
         {
             int index = Hash(l_pos[i]);
@@ -74,31 +77,31 @@ public static class HashTable
                 TODO: COMPROBAR EL FLOOR DEL BBMIN 
                 Las R se podrian precalcular?
             */
-            for (v3h.x = (int)bbMin.x; v3h.x < (int)bbMax.x; v3h.x++)
-            {
-                for (v3h.y = (int)bbMin.y; v3h.y < (int)bbMax.y; v3h.y++)
-                {
-                    for (v3h.z = (int)bbMin.z; v3h.z < (int)bbMax.z; v3h.z++)
-                    {
-                        int index = Hash(v3h);
-                        foreach (int index2 in base_array[index])
-                            l_neighbors[i].Add(index2);
-                        /* Esto permite borrar elementos para evitar la comprobacion del radio en los kernels
-                        int lenght = l_neighbors[count].Count;
-                        for (int position = 0; position < lenght; position++)
-                        {
-                            if (Vector3.Magnitude(l_pos[index] - l_pos[l_neighbors[count][position]]) > FluidProperties.support_radius)
-                            {
-                                l_neighbors[count].RemoveAt(position); //< RemoveAt es caro de narices una cola seria mejor probablemente
-                                lenght--;
-                                position--;
-                            }
-                        }
-                        count++;
-                        */
-                    }
-                }
-            }
+            //for (v3h.x = (int)bbMin.x; v3h.x < (int)bbMax.x; v3h.x++)
+            //{
+            //    for (v3h.y = (int)bbMin.y; v3h.y < (int)bbMax.y; v3h.y++)
+            //    {
+            //        for (v3h.z = (int)bbMin.z; v3h.z < (int)bbMax.z; v3h.z++)
+            //        {
+            //            int index = Hash(v3h);
+            //            foreach (int index2 in base_array[index])
+            //                l_neighbors[i].Add(index2);
+            //            /* Esto permite borrar elementos para evitar la comprobacion del radio en los kernels
+            //            int lenght = l_neighbors[count].Count;
+            //            for (int position = 0; position < lenght; position++)
+            //            {
+            //                if (Vector3.Magnitude(l_pos[index] - l_pos[l_neighbors[count][position]]) > FluidProperties.support_radius)
+            //                {
+            //                    l_neighbors[count].RemoveAt(position); //< RemoveAt es caro de narices una cola seria mejor probablemente
+            //                    lenght--;
+            //                    position--;
+            //                }
+            //            }
+            //            count++;
+            //            */
+            //        }
+            //    }
+            //}
         }
         
 
@@ -107,7 +110,9 @@ public static class HashTable
     private static void Clean_neighbors(List<List<int>> l_neighbors)
     {
 
-        l_neighbors.Clear();
+        foreach (List<int> l in l_neighbors)
+            l.Clear();
+        //l_neighbors.Clear();
 
     }
 
