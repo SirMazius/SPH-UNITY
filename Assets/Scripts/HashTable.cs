@@ -54,14 +54,31 @@ public static class HashTable
         return (int)(r.x * prime1) ^ (int)(r.y * prime2) ^ (int)(r.z * prime3) % size;
     }
 
+    //Podemos pasar toda la lista, sigue siendo una referencia no?
+    public static void Discretize(ref Vector3 pos, int index)
+    {
+        r.x = Mathf.Floor(pos.x / l);
+        r.y = Mathf.Floor(pos.y / l);
+        r.z = Mathf.Floor(pos.z / l);
+    }
+
     public static void Search_neighbors(List<Vector3> l_pos, List<List<int>> l_neighbors)
     {
+
+
+        Clean_neighbors(l_neighbors);
+
         for (int i = 0; i < FluidProperties.n_particles; i++)
         {
-            r.x = l_pos[i].x / l * prime1;
-            r.y = l_pos[i].y / l * prime2;
-            r.z = l_pos[i].z / l * prime3;
-
+            /*
+                TODO: revisar la siguiente seccion lo de multiplicar por los primos
+                no tiene mucho sentido aqui
+            */
+            //**********************************************************************
+            r.x = l_pos[i].x / l;
+            r.y = l_pos[i].y / l;
+            r.z = l_pos[i].z / l;
+            //**********************************************************************
             bbMin.x = (r.x * (l_pos[i].x - l));
             bbMin.y = (r.y * (l_pos[i].y - l));
             bbMin.z = (r.z * (l_pos[i].z - l));
@@ -71,37 +88,38 @@ public static class HashTable
             bbMax.z = (r.z * (l_pos[i].z + l));
 
             //int count = 0;
-            Clean_neighbors(l_neighbors);
-
             /*
                 TODO: COMPROBAR EL FLOOR DEL BBMIN 
                 Las R se podrian precalcular?
             */
-            //for (v3h.x = (int)bbMin.x; v3h.x < (int)bbMax.x; v3h.x++)
-            //{
-            //    for (v3h.y = (int)bbMin.y; v3h.y < (int)bbMax.y; v3h.y++)
-            //    {
-            //        for (v3h.z = (int)bbMin.z; v3h.z < (int)bbMax.z; v3h.z++)
-            //        {
-            //            int index = Hash(v3h);
-            //            foreach (int index2 in base_array[index])
-            //                l_neighbors[i].Add(index2);
-            //            /* Esto permite borrar elementos para evitar la comprobacion del radio en los kernels
-            //            int lenght = l_neighbors[count].Count;
-            //            for (int position = 0; position < lenght; position++)
-            //            {
-            //                if (Vector3.Magnitude(l_pos[index] - l_pos[l_neighbors[count][position]]) > FluidProperties.support_radius)
-            //                {
-            //                    l_neighbors[count].RemoveAt(position); //< RemoveAt es caro de narices una cola seria mejor probablemente
-            //                    lenght--;
-            //                    position--;
-            //                }
-            //            }
-            //            count++;
-            //            */
-            //        }
-            //    }
-            //}
+            for (v3h.x = (int)bbMin.x; v3h.x < (int)bbMax.x; v3h.x++)
+            {
+                for (v3h.y = (int)bbMin.y; v3h.y < (int)bbMax.y; v3h.y++)
+                {
+                    for (v3h.z = (int)bbMin.z; v3h.z < (int)bbMax.z; v3h.z++)
+                    {
+                        Debug.Log(i);
+                        //int index = Hash(v3h);
+                        //foreach (int index2 in base_array[index])
+                        //    l_neighbors[i].Add(index2);
+                        #region
+                        /* Esto permite borrar elementos para evitar la comprobacion del radio en los kernels
+                        int lenght = l_neighbors[count].Count;
+                        for (int position = 0; position < lenght; position++)
+                        {
+                            if (Vector3.Magnitude(l_pos[index] - l_pos[l_neighbors[count][position]]) > FluidProperties.support_radius)
+                            {
+                                l_neighbors[count].RemoveAt(position); //< RemoveAt es caro de narices una cola seria mejor probablemente
+                                lenght--;
+                                position--;
+                            }
+                        }
+                        count++;
+                        */
+                        #endregion
+                    }
+                }
+            }
         }
         
 

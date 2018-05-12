@@ -9,7 +9,7 @@ public class FluidEnviroment : MonoBehaviour
     public float sphere_radius;
     public int xAxis_particles, yAxis_particles, zAxis_particles;
     public int kernel_particles;
-    
+
 
     private List<Vector3> l_pos;
     private List<List<int>> l_neighbors;
@@ -21,12 +21,17 @@ public class FluidEnviroment : MonoBehaviour
     {
         int number_of_particles = xAxis_particles * yAxis_particles * zAxis_particles;
 
-        Initialize_lists();
+        
         FluidProperties.Initialize_fluid_properties(number_of_particles, kernel_particles, Time.fixedDeltaTime);
+
+        Initialize_lists();
+
         Kernels.Init_kernel(FluidProperties.support_radius);
         HashTable.Initialize();
         HashTable.Insert(l_pos);
         Integrator.Initialize_integrator();
+
+        
 
         Build_fluidCube();
 
@@ -35,12 +40,14 @@ public class FluidEnviroment : MonoBehaviour
 
     private void FixedUpdate()
     {
-       HashTable.Search_neighbors(l_pos, l_neighbors);
-       //DensityNpressure.Compute_massDensity(l_pos, l_density, l_neighbors);
+        
+        HashTable.Search_neighbors(l_pos, l_neighbors);
+        //DensityNpressure.Compute_massDensity(l_pos, l_density, l_neighbors);
     }
 
     private void Build_fluidCube()
     {
+        
         //Debug.Log(FluidProperties.support_radius);
         Vector3 pos = new Vector3();
         for (int i = 0; i < xAxis_particles; i++)
@@ -76,13 +83,19 @@ public class FluidEnviroment : MonoBehaviour
     private void Initialize_lists()
     {
         l_pos = new List<Vector3>();
-
-        l_neighbors = new List<List<int>>(FluidProperties.n_particles);
+        l_density = new List<float>();
+        l_pressure = new List<float>();
+        l_neighbors = new List<List<int>>();
+        
         for (int i = 0; i < FluidProperties.n_particles; i++)
-            l_neighbors[i] = new List<int>();
+        {
+            Debug.Log(i);
+            l_neighbors.Add(new List<int>());
+            l_density.Add(0f);
+            l_pressure.Add(0f);
+        }
 
-        l_density = new List<float>(FluidProperties.n_particles);
-        l_pressure = new List<float>(FluidProperties.n_particles);
+        
     }
 
 }
