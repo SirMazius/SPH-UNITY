@@ -28,7 +28,7 @@ public class FluidEnviroment : MonoBehaviour
 
         Kernels.Init_kernel(FluidProperties.support_radius);
         HashTable.Initialize();
-        HashTable.Insert(l_pos);
+        
         Integrator.Initialize_integrator();
 
         
@@ -40,7 +40,7 @@ public class FluidEnviroment : MonoBehaviour
 
     private void FixedUpdate()
     {
-        
+        HashTable.Insert(l_pos);
         HashTable.Search_neighbors(l_pos, l_neighbors);
         //DensityNpressure.Compute_massDensity(l_pos, l_density, l_neighbors);
     }
@@ -89,7 +89,7 @@ public class FluidEnviroment : MonoBehaviour
         
         for (int i = 0; i < FluidProperties.n_particles; i++)
         {
-            Debug.Log(i);
+            //Debug.Log(i);
             l_neighbors.Add(new List<int>());
             l_density.Add(0f);
             l_pressure.Add(0f);

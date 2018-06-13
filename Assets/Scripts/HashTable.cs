@@ -9,6 +9,7 @@ public static class HashTable
     const int prime2 = 19349663;
     const int prime3 = 83492791;
 
+    static int h;
     static Vector3 bbMin, bbMax;
     static Vector3 r;
     static Vector3 v3h;
@@ -21,6 +22,9 @@ public static class HashTable
         r = new Vector3();
         l = FluidProperties.support_radius;
         size = Next_prime(FluidProperties.n_particles * 2);
+
+        bbMax = new Vector3();
+        bbMin = new Vector3();
 
         base_array = new List<int>[size];
 
@@ -41,67 +45,72 @@ public static class HashTable
 
         for (int i = 0; i < l_pos.Count; i++)
         {
-            int index = Hash(l_pos[i]);
+            int index = Hash(l_pos, i);
             base_array[index].Add(i);
         }
     }
 
-    
+    public static int Hash(List<Vector3> l_pos, int index)
+    {
+        Discretize(l_pos, index);
+        return ((((int)r.x) * prime1) ^ (((int)r.y) * prime2) ^ (((int)r.z) * prime3)) % size; //Hay que castear solo r.x no el resultado de la multiplicacion
+    }
 
     public static int Hash(Vector3 pos)
     {
-        r.Set(Mathf.Floor(pos.x / l), Mathf.Floor(pos.y / l), Mathf.Floor(pos.z / l));
-        return (int)(r.x * prime1) ^ (int)(r.y * prime2) ^ (int)(r.z * prime3) % size;
+        Discretize(pos);
+        int h = ((((int)r.x) * prime1) ^ (((int)r.y) * prime2) ^ (((int)r.z) * prime3));
+        return h % size;
     }
 
-    //Podemos pasar toda la lista, sigue siendo una referencia no?
-    public static void Discretize(ref Vector3 pos, int index)
+    public static void Discretize(List<Vector3> l_pos, int index)
+    {
+        r.x = Mathf.Floor(l_pos[index].x / l);
+        r.y = Mathf.Floor(l_pos[index].y / l);
+        r.z = Mathf.Floor(l_pos[index].z / l);
+    }
+
+    public static void Discretize(Vector3 pos)
     {
         r.x = Mathf.Floor(pos.x / l);
         r.y = Mathf.Floor(pos.y / l);
         r.z = Mathf.Floor(pos.z / l);
     }
 
+    private static void Compute_boundingBox(List<Vector3> l_pos, int index) //< Esto es bastante sospechoso
+    {
+        bbMin.x = r.x * (l_pos[index].x - l);
+        bbMin.y = r.y * (l_pos[index].y - l);
+        bbMin.z = r.z * (l_pos[index].z - l);
+
+        bbMax.x = r.x * (l_pos[index].x + l);
+        bbMax.y = r.y * (l_pos[index].y + l);
+        bbMax.z = r.z * (l_pos[index].z + l);
+    }
+
     public static void Search_neighbors(List<Vector3> l_pos, List<List<int>> l_neighbors)
     {
-
+        float x, y, z;
 
         Clean_neighbors(l_neighbors);
 
         for (int i = 0; i < FluidProperties.n_particles; i++)
         {
-            /*
-                TODO: revisar la siguiente seccion lo de multiplicar por los primos
-                no tiene mucho sentido aqui
-            */
-            //**********************************************************************
-            r.x = l_pos[i].x / l;
-            r.y = l_pos[i].y / l;
-            r.z = l_pos[i].z / l;
-            //**********************************************************************
-            bbMin.x = (r.x * (l_pos[i].x - l));
-            bbMin.y = (r.y * (l_pos[i].y - l));
-            bbMin.z = (r.z * (l_pos[i].z - l));
 
-            bbMax.x = (r.x * (l_pos[i].x + l));
-            bbMax.y = (r.y * (l_pos[i].y + l));
-            bbMax.z = (r.z * (l_pos[i].z + l));
+            Discretize(l_pos, i);
 
-            //int count = 0;
-            /*
-                TODO: COMPROBAR EL FLOOR DEL BBMIN 
-                Las R se podrian precalcular?
-            */
-            for (v3h.x = (int)bbMin.x; v3h.x < (int)bbMax.x; v3h.x++)
+            Compute_boundingBox(l_pos, i);
+
+            for (x = bbMin.x; x < bbMax.x; x++)
             {
-                for (v3h.y = (int)bbMin.y; v3h.y < (int)bbMax.y; v3h.y++)
+                for (y = bbMin.y; y < bbMax.y; y++)
                 {
-                    for (v3h.z = (int)bbMin.z; v3h.z < (int)bbMax.z; v3h.z++)
+                    for (z = bbMin.z; z < bbMax.z; z++)
                     {
-                        Debug.Log(i);
-                        //int index = Hash(v3h);
-                        //foreach (int index2 in base_array[index])
-                        //    l_neighbors[i].Add(index2);
+                        v3h.Set(x, y, z);
+                        int index = Hash(v3h); //< BUG!?
+                        foreach (int index2 in base_array[index])
+                           h = index2;//l_neighbors[i].Add(index2);
                         #region
                         /* Esto permite borrar elementos para evitar la comprobacion del radio en los kernels
                         int lenght = l_neighbors[count].Count;
@@ -121,7 +130,7 @@ public static class HashTable
                 }
             }
         }
-        
+
 
     }
 
