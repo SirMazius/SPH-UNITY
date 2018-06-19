@@ -11,22 +11,25 @@ public static class HashTable
 
     static int h;
     static Vector3 bbMin, bbMax;
-    static Vector3 r;
     static Vector3 v3h;
     static int size;
     static float l;
 
+    public static FluidEnviroment fluidEnviroment;
+
     public static void Initialize()
     {
         v3h = new Vector3();
-        r = new Vector3();
-        l = FluidProperties.support_radius;
+        l = FluidProperties.support_radius * 2;
+        Debug.Log("asdad" + l);
         size = Next_prime(FluidProperties.n_particles * 2);
 
         bbMax = new Vector3();
         bbMin = new Vector3();
 
         base_array = new List<int>[size];
+
+        fluidEnviroment = GameObject.FindGameObjectWithTag("GameController").GetComponent<FluidEnviroment>();
 
         for (int i = 0; i < size; i++)
             base_array[i] = new List<int>();
@@ -40,77 +43,113 @@ public static class HashTable
 
     public static void Insert(List<Vector3> l_pos)
     {
-
+        Vector3 auxPos = new Vector3();
         Clean_table();
 
         for (int i = 0; i < l_pos.Count; i++)
         {
-            int index = Hash(l_pos, i);
+            auxPos.Set(l_pos[i].x, l_pos[i].y, l_pos[i].z);
+
+            Discretize(ref auxPos);
+            uint index = Hash(ref auxPos);
+
+
+            //fluidEnviroment.l_spheres[i].GetComponent<Renderer>().material.SetColor("_Color", Color.green);
+
+
             base_array[index].Add(i);
         }
     }
 
-    public static int Hash(List<Vector3> l_pos, int index)
+    private static void Discretize(ref Vector3 pos)
     {
-        Discretize(l_pos, index);
-        return ((((int)r.x) * prime1) ^ (((int)r.y) * prime2) ^ (((int)r.z) * prime3)) % size; //Hay que castear solo r.x no el resultado de la multiplicacion
+        pos.x = Mathf.Floor(pos.x / l);
+        pos.y = Mathf.Floor(pos.y / l);
+        pos.z = Mathf.Floor(pos.z / l);
+    }
+    /*
+        Bounding box calculation
+    */
+    #region 
+    private static void Compute_bbMin(ref Vector3 pos)
+    {
+        Vector3 discretizedPos = pos;
+        Discretize(ref discretizedPos);
+
+        bbMin.x = discretizedPos.x * (pos.x - l);
+        bbMin.y = discretizedPos.y * (pos.y - l);
+        bbMin.z = discretizedPos.z * (pos.z - l);
     }
 
-    public static int Hash(Vector3 pos)
+    private static void Compute_bbMax(ref Vector3 pos)
     {
-        Discretize(pos);
-        int h = ((((int)r.x) * prime1) ^ (((int)r.y) * prime2) ^ (((int)r.z) * prime3));
-        return h % size;
+        Vector3 discretizedPos = pos;
+        Discretize(ref discretizedPos);
+
+        bbMax.x = discretizedPos.x * (pos.x + l);
+        bbMax.y = discretizedPos.y * (pos.y + l);
+        bbMax.z = discretizedPos.z * (pos.z + l);
+    }
+    private static void Compute_bBox(ref Vector3 pos)
+    {
+        Vector3 auxPos = pos;
+        //Discretize(ref auxPos);
+        bbMax.x = (pos.x + l);
+        bbMax.y = (pos.y + l);
+        bbMax.z = (pos.z + l);
+        Discretize(ref bbMax);
+
+        bbMin.x = (pos.x - l);
+        bbMin.y = (pos.y - l);
+        bbMin.z = (pos.z - l);
+        Discretize(ref bbMin);
+    }
+    #endregion
+
+    private static void Compute_cell(ref Vector3 pos)
+    {
+        pos.x = Mathf.Floor((pos.x - bbMin.x) / l);
+        pos.y = Mathf.Floor((pos.y - bbMin.y) / l);
+        pos.z = Mathf.Floor((pos.z - bbMin.z) / l);
     }
 
-    public static void Discretize(List<Vector3> l_pos, int index)
+    private static uint Hash(ref Vector3 pos)
     {
-        r.x = Mathf.Floor(l_pos[index].x / l);
-        r.y = Mathf.Floor(l_pos[index].y / l);
-        r.z = Mathf.Floor(l_pos[index].z / l);
+        uint h = ((uint)(pos.x * prime1)) ^ ((uint)(pos.y * prime2)) ^ ((uint)(pos.z * prime3));
+        return (h % (uint)size);
     }
 
-    public static void Discretize(Vector3 pos)
-    {
-        r.x = Mathf.Floor(pos.x / l);
-        r.y = Mathf.Floor(pos.y / l);
-        r.z = Mathf.Floor(pos.z / l);
-    }
-
-    private static void Compute_boundingBox(List<Vector3> l_pos, int index) //< Esto es bastante sospechoso
-    {
-        bbMin.x = r.x * (l_pos[index].x - l);
-        bbMin.y = r.y * (l_pos[index].y - l);
-        bbMin.z = r.z * (l_pos[index].z - l);
-
-        bbMax.x = r.x * (l_pos[index].x + l);
-        bbMax.y = r.y * (l_pos[index].y + l);
-        bbMax.z = r.z * (l_pos[index].z + l);
-    }
 
     public static void Search_neighbors(List<Vector3> l_pos, List<List<int>> l_neighbors)
     {
+        Vector3 auxPos = new Vector3();
         float x, y, z;
-
         Clean_neighbors(l_neighbors);
 
-        for (int i = 0; i < FluidProperties.n_particles; i++)
+        for (int i = 512; i < 513; i++)
         {
+            /*
+                Para cada punto computamos sus bounding box
+            */
 
-            Discretize(l_pos, i);
+            auxPos.Set(l_pos[i].x, l_pos[i].y, l_pos[i].z);
+            Compute_bBox(ref auxPos);
 
-            Compute_boundingBox(l_pos, i);
+            /*
+                Iteramos sobre ellas
+            */
 
-            for (x = bbMin.x; x < bbMax.x; x++)
+            for (x = bbMin.x; x <= bbMax.x; x += 1)
             {
-                for (y = bbMin.y; y < bbMax.y; y++)
+                for (y = bbMin.y; y <= bbMax.y; y += 1)
                 {
-                    for (z = bbMin.z; z < bbMax.z; z++)
+                    for (z = bbMin.z; z <= bbMax.z; z += 1)
                     {
                         v3h.Set(x, y, z);
-                        int index = Hash(v3h); //< BUG!?
+                        uint index = Hash(ref v3h); //< BUG!?
+                        Debug.Log(v3h);
                         foreach (int index2 in base_array[index])
-                           h = index2;//l_neighbors[i].Add(index2);
+                            fluidEnviroment.l_spheres[index2].GetComponent<Renderer>().material.SetColor("_Color", Color.blue);//     h = index2;//l_neighbors[i].Add(index2);
                         #region
                         /* Esto permite borrar elementos para evitar la comprobacion del radio en los kernels
                         int lenght = l_neighbors[count].Count;
@@ -129,8 +168,8 @@ public static class HashTable
                     }
                 }
             }
+            fluidEnviroment.l_spheres[i].GetComponent<Renderer>().material.SetColor("_Color", Color.red);
         }
-
 
     }
 

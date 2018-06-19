@@ -124,7 +124,7 @@ GameObject:
   - component: {fileID: 44339322}
   m_Layer: 0
   m_Name: FluidManager
-  m_TagString: Untagged
+  m_TagString: GameController
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -148,6 +148,7 @@ MonoBehaviour:
   yAxis_particles: 10
   zAxis_particles: 10
   kernel_particles: 20
+  l_spheres: []
 --- !u!4 &44339323
 Transform:
   m_ObjectHideFlags: 0
